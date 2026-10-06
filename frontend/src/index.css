@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-nia-green ring-offset-2;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-nia-green px-4 py-2
+           font-medium text-white transition hover:bg-emerald-800
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900
+           placeholder:text-slate-400 focus:border-nia-green focus:outline-none
+           focus:ring-1 focus:ring-nia-green;
+  }
+
+  /* Markdown answers rendered by react-markdown. */
+  .answer :where(p) {
+    @apply mb-3 last:mb-0 leading-relaxed;
+  }
+  .answer :where(ul) {
+    @apply mb-3 list-disc space-y-1 pl-5;
+  }
+  .answer :where(ol) {
+    @apply mb-3 list-decimal space-y-1 pl-5;
+  }
+  .answer :where(a) {
+    @apply font-medium text-nia-green underline underline-offset-2;
+  }
+  .answer :where(strong) {
+    @apply font-semibold text-slate-900;
+  }
+  .answer :where(h1, h2, h3, h4) {
+    @apply mb-2 mt-4 font-semibold text-slate-900 first:mt-0;
+  }
+  .answer :where(table) {
+    @apply mb-3 w-full border-collapse text-sm;
+  }
+  .answer :where(th, td) {
+    @apply border border-slate-200 px-2 py-1 text-left;
+  }
+  .answer :where(th) {
+    @apply bg-slate-100 font-semibold;
+  }
+  .answer :where(code) {
+    @apply rounded bg-slate-100 px-1 py-0.5 text-sm;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-start infinite;
+}

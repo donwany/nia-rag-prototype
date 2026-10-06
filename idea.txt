@@ -1,0 +1,52 @@
+You are a web scraper and you need to extract data from a website. Scrape the entire website: https://nia.gov.gh/ and store 
+the extracted data in a markdown file.
+
+I want you to build a RAG To build a Retrieval-Augmented Generation (RAG) system:
+
+With the following Tech Stack:
+- Python
+- BeautifulSoup for web scraping
+- Requests for making HTTP requests 
+- LangChain for building the RAG system 
+- PGVector to store and retrieve vector embeddings 
+- Use Docker for containerization 
+- Langgraph for managing the RAG workflow 
+- Use React for building the frontend interface 
+- Use FastAPI for building the backend API
+- MongoDB for storing metadata and user data: user credentials, search history, and other relevant information. 
+
+# RAG System Implementation Plan
+## 1. Web Scraping
+- Use the `requests` library to send HTTP requests to the target website (https://nia.gov.gh/).
+- Use `BeautifulSoup` to parse the HTML content and extract relevant data such as text, images, links, and other media.
+- Store the extracted data in a structured format (e.g., JSON or CSV) for further processing.
+## 2. Data Preprocessing
+- Clean and preprocess the extracted data to remove any unnecessary HTML tags, scripts, or styles.
+- Normalize the text data by converting it to lowercase, removing punctuation, and handling special characters.
+- Tokenize the text data into sentences or paragraphs for better embedding generation.
+## 3. Embedding Generation
+- Use a pre-trained language model (e.g., BERT, GPT) to generate vector embeddings for the preprocessed text data.
+- Store the generated embeddings in a PGVector database for efficient retrieval and similarity search.
+## 4. RAG System Development
+- Use LangChain to build the RAG system that combines retrieval and generation capabilities.
+- Implement a retrieval mechanism that queries the PGVector database to find relevant embeddings based on user input.
+- Use the retrieved embeddings to generate context-aware responses using a language model.
+## 5. Backend API Development
+- Use FastAPI to build a RESTful API that handles user requests and interacts with the RAG system.
+- Implement endpoints for user authentication, data retrieval, and response generation.
+- Ensure proper error handling and validation for API requests.
+## 6. Frontend Development
+- Use React to build a user-friendly frontend interface that allows users to interact with the RAG system.
+- Implement features such as search input, response display, and user authentication.
+- Ensure responsive design and accessibility for a better user experience.
+## 7. Database Management
+- Use MongoDB to store user credentials, search history, and other relevant metadata.
+- Implement proper indexing and querying mechanisms to efficiently retrieve user data.
+## 8. Containerization
+- Use Docker to containerize the entire application, including the backend API, frontend interface, and database.
+- Create Dockerfiles for each component and use Docker Compose to manage multi-container applications.  
+
+Design the entire architecture of the RAG system, ensuring that all components are well-integrated and can communicate effectively
+and save it in a DESIGN.md file. 
+
+Prompt me for any additional details or specific requirements you would like to include in the RAG system architecture.

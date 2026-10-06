@@ -1,0 +1,104 @@
+name: nia-rag
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nia_password}
+      POSTGRES_DB: ${POSTGRES_DB:-nia_rag}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nia} -d ${POSTGRES_DB:-nia_rag}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  mongo:
+    image: mongo:7
+    container_name: nia-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-nia}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-nia_password}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      # mongosh is a Node application and routinely needs more than a few
+      # seconds just to start, so the timeout covers interpreter boot rather
+      # than only the ping itself.
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 40s
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    # Named explicitly so the ingest job can reuse this exact image rather
+    # than building a second copy that can drift out of sync.
+    image: nia-rag-backend:latest
+    container_name: nia-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-nia}:${MONGO_INITDB_ROOT_PASSWORD:-nia_password}@mongo:27017
+      DATA_DIR: /data
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nia-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  # One-shot job: scrape the site, then chunk and embed into PGVector.
+  #   docker compose --profile ingest run --rm ingest
+  ingest:
+    image: nia-rag-backend:latest
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: nia-ingest
+    profiles: ["ingest"]
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+      - ./scripts:/srv/scripts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/srv/scripts/ingest.sh"]
+
+volumes:
+  postgres_data:
+  mongo_data:
